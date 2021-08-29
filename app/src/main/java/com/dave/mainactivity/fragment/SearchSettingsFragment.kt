@@ -1,21 +1,35 @@
 package com.dave.mainactivity.fragment
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.dave.mainactivity.R
+import com.dave.mainactivity.enums.SearchType
 
 
 class SearchSettingsFragment : Fragment() {
     private var param1: String? = null
 
+    companion object {
+        private const val ARG_PARAM1 = "search_type"
+
+        @JvmStatic
+        fun newInstance(searchType: SearchType = SearchType.all) =
+            SearchSettingsFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, searchType.toString())
+                }
+            }
+
+        const val TAG = "Search settings"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(Companion.ARG_PARAM1)
+            param1 = it.getString(ARG_PARAM1)
         }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -23,20 +37,12 @@ class SearchSettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_books_list, container, false)
+        return inflater.inflate(R.layout.fragment_search_settings, container, false)
     }
 
-    companion object {
-        private const val ARG_PARAM1 = "param1"
-
-        @JvmStatic
-        fun newInstance(param1: String) =
-            BooksListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                }
-            }
-
-
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        menu.clear()
+        inflater.inflate(R.menu.toolbar_menu_settings, menu)
     }
 }
