@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
     }
 
     private fun navigateToFragment(newInstance: SearchSettingsFragment, tag: String) {
-        //Trying something
         val fragmentTransaction: FragmentTransaction =
             supportFragmentManager.beginTransaction()
         fragmentTransaction.setCustomAnimations(
