@@ -1,26 +1,32 @@
 package com.dave.mainactivity.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.dave.mainactivity.R
 import com.dave.mainactivity.`interface`.BooksListFragmentInput
 import com.dave.mainactivity.`interface`.BooksListFragmentOutput
+import com.dave.mainactivity.`interface`.SearchTypeChangeListener
 import com.dave.mainactivity.adapter.BooksAdapter
+import com.dave.mainactivity.enums.SearchType
 import com.dave.mainactivity.model.Book
 import com.dave.mainactivity.network.DataManager
 import com.dave.mainactivity.presenter.BooksListPresenter
 import com.dave.mainactivity.ui.BooksLinearLayoutManager
 
 class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragment(),
-    BooksListFragmentInput {
+    BooksListFragmentInput, SearchTypeChangeListener {
     private lateinit var rootView: View
     private lateinit var loadingView: View
     private lateinit var noResultView: View
     private lateinit var recyclerView: RecyclerView
-    private val adapter = BooksAdapter()
+    private lateinit var searchView: SearchView
+    private lateinit var adapter: BooksAdapter
+    private var inputText = ""
 
     companion object {
         @JvmStatic
@@ -37,13 +43,17 @@ class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragme
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        //used application context for glide not to add anything to backstack
+        adapter = BooksAdapter(requireActivity().applicationContext)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         val searchItem: MenuItem? = menu.findItem(R.id.app_bar_search)
-        val searchView: SearchView = searchItem?.actionView as SearchView
+        searchView = searchItem?.actionView as SearchView
         searchView.setOnQueryTextListener(onTextChange)
+        searchView.setQuery(inputText, true)
     }
 
     override fun onCreateView(
@@ -54,27 +64,9 @@ class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragme
         recyclerView = rootView.findViewById(R.id.recyclerView)
         loadingView = rootView.findViewById(R.id.loadingView)
         noResultView = rootView.findViewById(R.id.noResults)
+        setupListView()
 
-        recyclerView.layoutManager =
-            BooksLinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        recyclerView.adapter = adapter
         return rootView
-    }
-
-    private val onTextChange = object : SearchView.OnQueryTextListener {
-        override fun onQueryTextSubmit(query: String?): Boolean {
-            query?.let {
-                if (it.isNotEmpty()) {
-                    presenter.searchBooks(query)
-                }
-            }
-            return true
-        }
-
-        override fun onQueryTextChange(newText: String?): Boolean {
-            return false
-        }
-
     }
 
     override fun startLoading() {
@@ -91,5 +83,44 @@ class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragme
         adapter.setList(models)
         recyclerView.visibility = if (models.isEmpty()) View.INVISIBLE else View.VISIBLE
         noResultView.visibility = if (models.isEmpty()) View.VISIBLE else View.INVISIBLE
+    }
+
+    override fun searchTypeChanged(type: SearchType) {
+        val input = searchView.query.toString()
+        if (input.isNotEmpty()) {
+            presenter.searchBooks(input)
+        }
+    }
+
+    private fun setupListView() {
+        recyclerView.layoutManager =
+            BooksLinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        recyclerView.adapter = adapter
+    }
+
+    private val onTextChange = object : SearchView.OnQueryTextListener {
+        override fun onQueryTextSubmit(query: String?): Boolean {
+            hideKeyboard()
+            query?.let {
+                if (it.isNotEmpty()) {
+                    presenter.searchBooks(query)
+                }
+            }
+            return true
+        }
+
+        override fun onQueryTextChange(newText: String?): Boolean {
+            if (newText != null) {
+                inputText = newText
+            }
+            return false
+        }
+
+    }
+
+    private fun hideKeyboard() {
+        val imm =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view?.windowToken, 0)
     }
 }

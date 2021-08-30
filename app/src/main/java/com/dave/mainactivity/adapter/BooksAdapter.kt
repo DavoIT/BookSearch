@@ -1,5 +1,6 @@
 package com.dave.mainactivity.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,12 +9,12 @@ import com.dave.mainactivity.R
 import com.dave.mainactivity.model.Book
 import com.dave.mainactivity.ui.BookViewHolder
 
-internal class BooksAdapter : RecyclerView.Adapter<BookViewHolder>() {
+internal class BooksAdapter(private val context: Context) : RecyclerView.Adapter<BookViewHolder>() {
     private var list = listOf<Book>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val view: View = layoutInflater.inflate(R.layout.book_item, parent, false)
-        return BookViewHolder(view)
+        return BookViewHolder(context, view)
     }
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
