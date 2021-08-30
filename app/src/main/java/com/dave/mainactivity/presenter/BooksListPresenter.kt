@@ -10,9 +10,7 @@ class BooksListPresenter(
 ) : BooksListFragmentOutput {
     private var view: BooksListFragmentInput? = null
 
-    private var searchType = SearchType.all
-
-    override fun searchBooks(input: String) {
+    override fun searchBooks(input: String, searchType: SearchType) {
         view?.startLoading()
         service.getBooksList(input, searchType) {
             view?.stopLoading()

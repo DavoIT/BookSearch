@@ -27,6 +27,7 @@ class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragme
     private lateinit var searchView: SearchView
     private lateinit var adapter: BooksAdapter
     private var inputText = ""
+    private var needsSearch = true
 
     companion object {
         @JvmStatic
@@ -53,7 +54,7 @@ class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragme
         val searchItem: MenuItem? = menu.findItem(R.id.app_bar_search)
         searchView = searchItem?.actionView as SearchView
         searchView.setOnQueryTextListener(onTextChange)
-        searchView.setQuery(inputText, true)
+        searchView.setQuery(inputText, needsSearch)
     }
 
     override fun onCreateView(
@@ -88,7 +89,7 @@ class BooksListFragment(private val presenter: BooksListFragmentOutput) : Fragme
     override fun searchTypeChanged(type: SearchType) {
         val input = searchView.query.toString()
         if (input.isNotEmpty()) {
-            presenter.searchBooks(input)
+            presenter.searchBooks(input, type)
         }
     }
 

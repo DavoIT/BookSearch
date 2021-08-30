@@ -22,8 +22,10 @@ class SearchTypesAdapter : RecyclerView.Adapter<SearchTypeViewHolder>() {
         val searchType = SearchType.values()[position]
         holder.setupWith(searchType, selectedType == searchType)
         holder.itemView.setOnClickListener {
-            setSelectedType(searchType)
-            selectListener?.searchTypeChanged(searchType)
+            if (selectedType != searchType) {
+                setSelectedType(searchType)
+                selectListener?.searchTypeChanged(searchType)
+            }
         }
     }
 

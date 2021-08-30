@@ -30,11 +30,6 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
             .addToBackStack("Books frag").commit()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        super.onCreateOptionsMenu(menu)
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.app_bar_filter -> {
@@ -88,8 +83,10 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
 
     override fun searchTypeChanged(type: SearchType) {
         supportFragmentManager.findFragmentByTag(BooksListFragment.TAG)?.let {
-            selectedSearchType = type
-            (it as BooksListFragment).searchTypeChanged(type)
+            if (selectedSearchType != type) {
+                selectedSearchType = type
+                (it as BooksListFragment).searchTypeChanged(type)
+            }
         }
     }
 
