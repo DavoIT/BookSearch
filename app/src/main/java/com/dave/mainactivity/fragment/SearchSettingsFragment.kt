@@ -1,7 +1,9 @@
 package com.dave.mainactivity.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.dave.mainactivity.R
 import com.dave.mainactivity.enums.SearchType
@@ -38,6 +40,13 @@ class SearchSettingsFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_search_settings, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val imm: InputMethodManager =
+            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

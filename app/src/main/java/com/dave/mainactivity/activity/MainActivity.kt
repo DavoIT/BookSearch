@@ -57,6 +57,15 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
         return true
     }
 
+    override fun onBackPressed() {
+        val isOnFirstPage = supportFragmentManager.backStackEntryCount == 1
+        if(isOnFirstPage) {
+            moveTaskToBack(false)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun onBackStackChanged() {
         val isOnFirstPage = supportFragmentManager.backStackEntryCount == 1
         val lastFragmentIndex = supportFragmentManager.fragments.size - 1
