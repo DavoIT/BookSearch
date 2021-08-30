@@ -1,16 +1,22 @@
 package com.dave.mainactivity.activity
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.dave.mainactivity.R
+import com.dave.mainactivity.`interface`.SearchTypeChangeListener
+import com.dave.mainactivity.enums.SearchType
 import com.dave.mainactivity.fragment.BooksListFragment
 import com.dave.mainactivity.fragment.SearchSettingsFragment
 
 
-class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedListener {
+class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedListener,
+    SearchTypeChangeListener {
+
+    private var selectedSearchType = SearchType.all
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,10 +30,17 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
             .addToBackStack("Books frag").commit()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.app_bar_filter -> {
-                navigateToFragment(SearchSettingsFragment.newInstance(), SearchSettingsFragment.TAG)
+                val searchSettingsFragment = SearchSettingsFragment.newInstance(selectedSearchType)
+                searchSettingsFragment.setOnSearchTypeChangeListener(this)
+                navigateToFragment(searchSettingsFragment, SearchSettingsFragment.TAG)
                 return true
             }
         }
@@ -57,11 +70,27 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
         return true
     }
 
+    override fun onBackPressed() {
+        val isOnFirstPage = supportFragmentManager.backStackEntryCount == 1
+        if (isOnFirstPage) {
+            moveTaskToBack(false)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun onBackStackChanged() {
         val isOnFirstPage = supportFragmentManager.backStackEntryCount == 1
         val lastFragmentIndex = supportFragmentManager.fragments.size - 1
         supportActionBar?.setDisplayHomeAsUpEnabled(!isOnFirstPage)
         supportActionBar?.title = supportFragmentManager.fragments[lastFragmentIndex].tag
+    }
+
+    override fun searchTypeChanged(type: SearchType) {
+        supportFragmentManager.findFragmentByTag(BooksListFragment.TAG)?.let {
+            selectedSearchType = type
+            (it as BooksListFragment).searchTypeChanged(type)
+        }
     }
 
 }
